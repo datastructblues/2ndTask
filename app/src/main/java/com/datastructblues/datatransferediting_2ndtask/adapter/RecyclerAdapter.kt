@@ -1,5 +1,6 @@
 package com.datastructblues.datatransferediting_2ndtask.adapter
 
+import android.app.Activity
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -10,8 +11,6 @@ import com.datastructblues.datatransferediting_2ndtask.view.MainActivity
 import com.datastructblues.datatransferediting_2ndtask.view.SecondActivity
 
 class RecyclerAdapter(private val elementList: ArrayList<ElementModel>): RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
-
-
 
     class ViewHolder(val binding: RecyclerRowBinding):RecyclerView.ViewHolder(binding.root){
 
@@ -29,9 +28,10 @@ class RecyclerAdapter(private val elementList: ArrayList<ElementModel>): Recycle
         holder.binding.textView.setOnClickListener {
             val intent = Intent(holder.itemView.context.applicationContext,SecondActivity::class.java)
             intent.putExtra("position",position)
+            println(position)
             holder.itemView.context.startActivity(intent)
+         //   (holder.itemView.context as Activity).finish()
         }
-
 
     }
 

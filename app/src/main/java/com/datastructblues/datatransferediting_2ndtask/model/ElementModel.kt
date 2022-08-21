@@ -5,5 +5,5 @@ import java.io.Serializable
 
 data class ElementModel(
     val id:Int,
-    val text:String
+    var text:String
 )

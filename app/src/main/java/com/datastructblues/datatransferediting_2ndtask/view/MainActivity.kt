@@ -18,14 +18,14 @@ class MainActivity : AppCompatActivity(){
         setContentView(binding.root)
         createDummyData()
         recyclerOps()
-        getData()
-
+        setNewElement()
     }
 
     private fun recyclerOps() {
         binding.recyclerView.layoutManager = LinearLayoutManager(this,RecyclerView.HORIZONTAL,false)
         val recyclerAdapter = RecyclerAdapter(elementList)
         binding.recyclerView.adapter = recyclerAdapter
+
     }
 
     private fun createDummyData() {
@@ -47,14 +47,15 @@ class MainActivity : AppCompatActivity(){
 
     }
 
+
  /*   private fun sendElementList(){
         val intent = Intent(this@MainActivity,SecondActivity::class.java)
         intent.putExtra("list",elementList)
     }
 
-  */
 
-  /*  private fun getNewItem():ElementModel{
+
+    private fun getNewItem():ElementModel{
             val degisken = intent.extras
             degisken?.let {
               return degisken.get("newItem") as ElementModel
@@ -62,7 +63,7 @@ class MainActivity : AppCompatActivity(){
         return degisken as ElementModel
 
         }
-   */
+
     private fun replaceItem(){
         val id = getData()
         val newElementText = intent.getStringExtra("newText")
@@ -78,4 +79,24 @@ class MainActivity : AppCompatActivity(){
         }
         return -1
     }
+
+  */
+
+    private fun getNewElement():Int{
+        return intent.getIntExtra("posToMain",-1)
+
+    }
+ //oncreatte ilk cagırdıgında null geldi
+     private fun setNewElement(){
+         val value = getNewElement()
+        for(i in 0 until 10){
+            if(elementList[i].id==value){
+                elementList[i].text = intent.getStringExtra("newText").toString()
+                
+
+            }
+
+        }
+    }
+
 }
