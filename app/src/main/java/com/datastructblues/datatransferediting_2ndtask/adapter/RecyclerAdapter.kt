@@ -24,13 +24,17 @@ class RecyclerAdapter(private val elementList: ArrayList<ElementModel>): Recycle
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.binding.textView.text = elementList[position].text
+        val maxWidth =holder.binding.textView.maxWidth
+
+
 
         holder.binding.textView.setOnClickListener {
             val intent = Intent(holder.itemView.context.applicationContext,SecondActivity::class.java)
-            intent.putExtra("position",position)
+            intent.putExtra("element", elementList[position])
             println(position)
             holder.itemView.context.startActivity(intent)
         }
+
     }
 
     override fun getItemCount(): Int {
