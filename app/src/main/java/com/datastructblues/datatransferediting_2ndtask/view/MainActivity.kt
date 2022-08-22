@@ -3,6 +3,7 @@ package com.datastructblues.datatransferediting_2ndtask.view
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.activity.result.ActivityResultLauncher
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.datastructblues.datatransferediting_2ndtask.adapter.RecyclerAdapter
@@ -11,12 +12,23 @@ import com.datastructblues.datatransferediting_2ndtask.model.ElementModel
 
 class MainActivity : AppCompatActivity(){
     private lateinit var binding: ActivityMainBinding
-    private lateinit var elementList: ArrayList<ElementModel>
+    private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
+    private var elementList = arrayListOf(
+        ElementModel(1, "umut1"),
+        ElementModel(2, "umut2"),
+        ElementModel(3, "umut3"),
+        ElementModel(4, "umut4"),
+        ElementModel(5, "umut5"),
+        ElementModel(6, "umut6"),
+        ElementModel(7, "umut7"),
+        ElementModel(8, "umut8"),
+        ElementModel(9, "umut9"),
+        ElementModel(10, "umut10"))
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        createDummyData()
         recyclerOps()
         setNewElement()
     }
@@ -25,10 +37,10 @@ class MainActivity : AppCompatActivity(){
         binding.recyclerView.layoutManager = LinearLayoutManager(this,RecyclerView.HORIZONTAL,false)
         val recyclerAdapter = RecyclerAdapter(elementList)
         binding.recyclerView.adapter = recyclerAdapter
-
+        recyclerAdapter.notifyDataSetChanged()
     }
 
-    private fun createDummyData() {
+  /*  private fun createDummyData() {
         val element0 = ElementModel(1, "umut1")
         val element1 = ElementModel(2, "umut2")
         val element2 = ElementModel(3, "umut3")
@@ -47,7 +59,7 @@ class MainActivity : AppCompatActivity(){
 
     }
 
-
+   */
  /*   private fun sendElementList(){
         val intent = Intent(this@MainActivity,SecondActivity::class.java)
         intent.putExtra("list",elementList)
@@ -91,12 +103,10 @@ class MainActivity : AppCompatActivity(){
          val value = getNewElement()
         for(i in 0 until 10){
             if(elementList[i].id==value){
-                elementList[i].text = intent.getStringExtra("newText").toString()
-                
-
+                elementList[i] = ElementModel(i,intent.getStringExtra("newText").toString())
             }
-
+            println(elementList[i].text)
+            finish()
         }
     }
-
 }

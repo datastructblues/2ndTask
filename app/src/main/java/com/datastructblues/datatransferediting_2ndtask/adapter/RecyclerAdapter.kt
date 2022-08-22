@@ -30,9 +30,7 @@ class RecyclerAdapter(private val elementList: ArrayList<ElementModel>): Recycle
             intent.putExtra("position",position)
             println(position)
             holder.itemView.context.startActivity(intent)
-         //   (holder.itemView.context as Activity).finish()
         }
-
     }
 
     override fun getItemCount(): Int {
