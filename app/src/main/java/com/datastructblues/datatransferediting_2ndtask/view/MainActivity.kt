@@ -3,6 +3,7 @@ package com.datastructblues.datatransferediting_2ndtask.view
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -10,26 +11,35 @@ import androidx.recyclerview.widget.RecyclerView
 import com.datastructblues.datatransferediting_2ndtask.adapter.RecyclerAdapter
 import com.datastructblues.datatransferediting_2ndtask.databinding.ActivityMainBinding
 import com.datastructblues.datatransferediting_2ndtask.model.ElementModel
-import java.io.Serializable
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var elementList:ArrayList<ElementModel>
+    private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
+    private val bundleEdited = "editedElement"
+    private val bundleElement = "element"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         createDummyData()
+        launcher()
         recyclerOps()
         setNewElement()
     }
 
     private fun recyclerOps() {
-        binding.recyclerView.layoutManager =
-            LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
+        binding.recyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
         val recyclerAdapter = RecyclerAdapter(elementList)
         binding.recyclerView.adapter = recyclerAdapter
+        recyclerAdapter.onItemClick = { elementModel ->
+            val intent = Intent(this@MainActivity,SecondActivity::class.java)
+            intent.putExtra(bundleElement, elementModel)
+            activityResultLauncher.launch(intent)
+            finish()
+        }
+
     }
 
       private fun createDummyData() {
@@ -51,56 +61,48 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    /*   private fun sendElementList(){
-        val intent = Intent(this@MainActivity,SecondActivity::class.java)
-        intent.putExtra("list",elementList)
-    }
-
-
-
-    private fun getNewItem():ElementModel{
-            val degisken = intent.extras
-            degisken?.let {
-              return degisken.get("newItem") as ElementModel
-            }
-        return degisken as ElementModel
-
-        }
-
-    private fun replaceItem(){
-        val id = getData()
-        val newElementText = intent.getStringExtra("newText")
-      newElementText?.let {
-          val newElement= ElementModel(id,newElementText)
-          elementList.set(id,newElement)
-      }
-    }
-    private fun getData():Int{
-        val degisken = intent.extras
-        degisken?.let {
-            return degisken.getInt("position",-1)
-        }
-        return -1
-    }
-
-  */
-
     private fun getNewElement(): ElementModel? {
-        return intent.getSerializableExtra("editedElement") as ElementModel?
+        return intent.getSerializableExtra(bundleEdited) as ElementModel?
 
     }
 
-    private fun setNewElement() {
+  /*  private fun setNewElement() {
         val value = getNewElement()
         value?.let {
             for (i in 0 until elementList.size) {
                 if (elementList[i].id ==value.id) {
-                    elementList[i] = ElementModel(value.id,value.text)
+                    elementList[i].text = value.text
                 }
                 println(elementList[i].text)
             }
         }
-
     }
 
+   */
+
+
+     private fun setNewElement() {
+        val value = getNewElement()
+        value?.let { elementModel ->
+           val matchedElement=  elementList.find {
+                it.id == elementModel.id
+            }
+            if (matchedElement != null) {
+                matchedElement.text =elementModel.text
+            }
+        }
+    }
+
+
+    private fun launcher() {
+      activityResultLauncher =
+          registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+              if (result.resultCode == RESULT_OK) {
+                  TODO()
+              } else {
+                  TODO()
+              }
+
+          }
+  }
 }

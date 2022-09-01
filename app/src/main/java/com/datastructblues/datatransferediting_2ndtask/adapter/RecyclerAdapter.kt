@@ -1,20 +1,23 @@
 package com.datastructblues.datatransferediting_2ndtask.adapter
 
-import android.app.Activity
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.datastructblues.datatransferediting_2ndtask.databinding.RecyclerRowBinding
 import com.datastructblues.datatransferediting_2ndtask.model.ElementModel
-import com.datastructblues.datatransferediting_2ndtask.view.MainActivity
-import com.datastructblues.datatransferediting_2ndtask.view.SecondActivity
+
+
 
 class RecyclerAdapter(private val elementList: ArrayList<ElementModel>): RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
+    var onItemClick: ((ElementModel) -> Unit)? = null
 
-    class ViewHolder(val binding: RecyclerRowBinding):RecyclerView.ViewHolder(binding.root){
 
-
+    inner class ViewHolder(val binding: RecyclerRowBinding) :RecyclerView.ViewHolder(binding.root){
+        init{
+            binding.textView.setOnClickListener {
+                onItemClick?.invoke(elementList[adapterPosition])
+            }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -24,16 +27,17 @@ class RecyclerAdapter(private val elementList: ArrayList<ElementModel>): Recycle
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.binding.textView.text = elementList[position].text
-        val maxWidth =holder.binding.textView.maxWidth
-
-
-
-        holder.binding.textView.setOnClickListener {
-            val intent = Intent(holder.itemView.context.applicationContext,SecondActivity::class.java)
-            intent.putExtra("element", elementList[position])
+   /*     holder.binding.textView.setOnClickListener {
+            // asla applicationcontext uzerınden erısılmemeli cunku cok genel bir context bu.
+          //  val intent = Intent(holder.itemView.context.applicationContext,SecondActivity::class.java)
+           intent.putExtra("element", elementList[position])
             println(position)
             holder.itemView.context.startActivity(intent)
+
+
         }
+
+    */
 
     }
 
