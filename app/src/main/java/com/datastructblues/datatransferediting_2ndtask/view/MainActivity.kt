@@ -3,7 +3,6 @@ package com.datastructblues.datatransferediting_2ndtask.view
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,8 +15,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var elementList:ArrayList<ElementModel>
     private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
-    private val bundleEdited = "editedElement"
-    private val bundleElement = "element"
+    private val bundle_edited_element = "editedElement"
+    private val bundle_element = "element"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,7 +25,6 @@ class MainActivity : AppCompatActivity() {
         createDummyData()
         launcher()
         recyclerOps()
-        setNewElement()
     }
 
     private fun recyclerOps() {
@@ -34,10 +32,9 @@ class MainActivity : AppCompatActivity() {
         val recyclerAdapter = RecyclerAdapter(elementList)
         binding.recyclerView.adapter = recyclerAdapter
         recyclerAdapter.onItemClick = { elementModel ->
-            val intent = Intent(this@MainActivity,SecondActivity::class.java)
-            intent.putExtra(bundleElement, elementModel)
-            activityResultLauncher.launch(intent)
-            finish()
+            activityResultLauncher.launch(Intent(this, SecondActivity::class.java).apply {
+                putExtra(bundle_element, elementModel)
+            })
         }
 
     }
@@ -61,10 +58,12 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun getNewElement(): ElementModel? {
-        return intent.getSerializableExtra(bundleEdited) as ElementModel?
+   /* private fun getNewElement(): ElementModel? {
+        return intent.getSerializableExtra(bundle_element) as ElementModel?
 
     }
+
+    */
 
   /*  private fun setNewElement() {
         val value = getNewElement()
@@ -81,28 +80,25 @@ class MainActivity : AppCompatActivity() {
    */
 
 
-     private fun setNewElement() {
-        val value = getNewElement()
-        value?.let { elementModel ->
-           val matchedElement=  elementList.find {
+    private fun setNewElement(resultElementModel: ElementModel) {
+        resultElementModel?.let { elementModel ->
+            val matchedElement = elementList.find {
                 it.id == elementModel.id
             }
             if (matchedElement != null) {
-                matchedElement.text =elementModel.text
+                matchedElement.text = elementModel.text
             }
+            println(elementList)
         }
     }
 
 
     private fun launcher() {
-      activityResultLauncher =
-          registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-              if (result.resultCode == RESULT_OK) {
-                  TODO()
-              } else {
-                  TODO()
-              }
-
-          }
+        activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                setNewElement(result.data?.getSerializableExtra(bundle_element) as ElementModel)
+                binding.recyclerView.adapter?.notifyDataSetChanged()
+            }
+        }
   }
 }

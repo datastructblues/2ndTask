@@ -16,22 +16,21 @@ class SecondActivity : AppCompatActivity() {
     private lateinit var newElement:ElementModel
     private val bundle_element = "element"
     private val bundle_edited_element = "editedElement"
-    private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
+
+    private val activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
+        if(it.resultCode == RESULT_OK){
+
+        }
+        else{
+            TODO()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySecondBinding.inflate(layoutInflater)
         setContentView(binding.root)
         newElement = getData()
-
-        activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
-            if(it.resultCode == RESULT_OK){
-               TODO()
-            }
-            else{
-                TODO()
-            }
-        }
 
     }
 
@@ -45,13 +44,22 @@ class SecondActivity : AppCompatActivity() {
 
 
 
-    fun editData(view: View) {
+   /* fun editData(view: View) {
         val newPosition = newElement.id
         val newText=binding.elementName.text.toString()
             val intent = Intent(this@SecondActivity, MainActivity::class.java)
             intent.putExtra(bundle_edited_element,ElementModel(newPosition,newText))
             activityResultLauncher.launch(intent)
-            finish()
-
+            activityResultLauncher.unregister()
      }
+
+    */
+
+    fun editData(view: View) {
+        newElement?.let {
+            val newText = binding.elementName.text.toString()
+            setResult(Activity.RESULT_OK,intent.putExtra(bundle_element, ElementModel(it.id, newText)))
+            finish()
+        }
+    }
 }
