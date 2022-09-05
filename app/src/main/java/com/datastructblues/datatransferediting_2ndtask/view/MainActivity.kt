@@ -1,8 +1,11 @@
 package com.datastructblues.datatransferediting_2ndtask.view
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -10,12 +13,22 @@ import androidx.recyclerview.widget.RecyclerView
 import com.datastructblues.datatransferediting_2ndtask.adapter.RecyclerAdapter
 import com.datastructblues.datatransferediting_2ndtask.databinding.ActivityMainBinding
 import com.datastructblues.datatransferediting_2ndtask.model.ElementModel
+import kotlin.math.roundToInt
+
+
+/*   OUTPUT
+  -Main Activity'i devamlı finishlememeyi ogrendim.
+  -Bundle var kullanmayı ogrendim.
+  -Resultcontractlar ile diger activitylerin sonucunu bekleyebildigimi ogrendim.
+  -find gibi list func kullanmayı ogrendım
+  -recyclerview logicini activityden yonetmeyi ogrendim( henuz custom listener eklemeyi denemedim)
+  -custom layoutmanager kullanımı gordum code copypaste(stackoverflow)
+ */
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var elementList:ArrayList<ElementModel>
     private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
-    private val bundle_edited_element = "editedElement"
     private val bundle_element = "element"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,9 +41,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun recyclerOps() {
-        binding.recyclerView.layoutManager = LinearLayoutManager(this, RecyclerView.HORIZONTAL, false)
+        binding.recyclerView.layoutManager = LinearLayoutPagerManager(this,RecyclerView.HORIZONTAL,false,2)
         val recyclerAdapter = RecyclerAdapter(elementList)
         binding.recyclerView.adapter = recyclerAdapter
+
         recyclerAdapter.onItemClick = { elementModel ->
             activityResultLauncher.launch(Intent(this, SecondActivity::class.java).apply {
                 putExtra(bundle_element, elementModel)
@@ -93,6 +107,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun launcher() {
         activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
@@ -101,4 +116,37 @@ class MainActivity : AppCompatActivity() {
             }
         }
   }
+  //customLinearLayoutManager
+    class LinearLayoutPagerManager(context: Context, orientation: Int, reverseLayout: Boolean, private val itemsPerPage: Int) : LinearLayoutManager(context,orientation,reverseLayout) {
+
+        override fun checkLayoutParams(lp: RecyclerView.LayoutParams?): Boolean {
+            return super.checkLayoutParams(lp) && lp!!.width == getItemSize()
+        }
+
+        override fun generateDefaultLayoutParams(): RecyclerView.LayoutParams {
+            return setProperItemSize(super.generateDefaultLayoutParams())
+        }
+
+        override fun generateLayoutParams(lp: ViewGroup.LayoutParams): RecyclerView.LayoutParams {
+            return setProperItemSize(super.generateLayoutParams(lp))
+        }
+
+        private fun setProperItemSize(lp: RecyclerView.LayoutParams): RecyclerView.LayoutParams {
+            val itemSize = getItemSize()
+            if (orientation == HORIZONTAL) {
+                lp.width = itemSize
+            } else {
+                lp.height = itemSize
+            }
+            return lp
+        }
+
+        private fun getItemSize(): Int {
+            val pageSize = if (orientation == HORIZONTAL) width else height
+            return (pageSize.toFloat() / itemsPerPage).roundToInt()
+        }
+
+
+    }
+    //umut
 }

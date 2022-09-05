@@ -13,18 +13,10 @@ import com.datastructblues.datatransferediting_2ndtask.model.ElementModel
 
 class SecondActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySecondBinding
-    private lateinit var newElement:ElementModel
+    private lateinit var newElement: ElementModel
     private val bundle_element = "element"
     private val bundle_edited_element = "editedElement"
 
-    private val activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
-        if(it.resultCode == RESULT_OK){
-
-        }
-        else{
-            TODO()
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
