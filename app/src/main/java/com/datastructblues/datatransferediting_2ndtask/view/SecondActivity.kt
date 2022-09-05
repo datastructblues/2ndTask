@@ -15,7 +15,6 @@ class SecondActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySecondBinding
     private lateinit var newElement: ElementModel
     private val bundle_element = "element"
-    private val bundle_edited_element = "editedElement"
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
