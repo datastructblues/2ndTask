@@ -8,11 +8,14 @@ import android.os.Bundle
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.datastructblues.datatransferediting_2ndtask.adapter.RecyclerAdapter
 import com.datastructblues.datatransferediting_2ndtask.databinding.ActivityMainBinding
 import com.datastructblues.datatransferediting_2ndtask.model.ElementModel
+import com.datastructblues.datatransferediting_2ndtask.viewmodel.MainViewModel
 import kotlin.math.roundToInt
 
 
@@ -26,8 +29,8 @@ import kotlin.math.roundToInt
  */
 
 class MainActivity : AppCompatActivity() {
+    private val viewModel by lazy {ViewModelProvider(this) [MainViewModel::class.java] }
     private lateinit var binding: ActivityMainBinding
-    private lateinit var elementList:ArrayList<ElementModel>
     private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
     private val bundle_element = "element"
 
@@ -35,84 +38,33 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        createDummyData()
+        initializeVM()
         launcher()
         recyclerOps()
     }
 
     private fun recyclerOps() {
         binding.recyclerView.layoutManager = LinearLayoutPagerManager(this,RecyclerView.HORIZONTAL,false,2)
-        val recyclerAdapter = RecyclerAdapter(elementList)
+        val recyclerAdapter = viewModel.elements.value?.let { RecyclerAdapter(it) }
         binding.recyclerView.adapter = recyclerAdapter
+        recyclerAdapter?.let {
+            observeLiveData(recyclerAdapter)
+            recyclerAdapter.onItemClick = { elementModel ->
+                activityResultLauncher.launch(Intent(this, SecondActivity::class.java).apply {
+                    putExtra(bundle_element, elementModel)
 
-        recyclerAdapter.onItemClick = { elementModel ->
-            activityResultLauncher.launch(Intent(this, SecondActivity::class.java).apply {
-                putExtra(bundle_element, elementModel)
-            })
-        }
-
-    }
-
-      private fun createDummyData() {
-        val element0 = ElementModel(1, "umut1")
-        val element1 = ElementModel(2, "umut2")
-        val element2 = ElementModel(3, "umut3")
-        val element3 = ElementModel(4, "umut4")
-        val element4 = ElementModel(5, "umut5")
-        val element5 = ElementModel(6, "umut6")
-        val element6 = ElementModel(7, "umut7")
-        val element7 = ElementModel(8, "umut8")
-        val element8 = ElementModel(9, "umut9")
-        val element9 = ElementModel(10, "umut10")
-
-        elementList = arrayListOf(element0,element1,element2,
-            element3,element4,
-            element5,element6,
-            element7,element8,element9)
-
-    }
-
-   /* private fun getNewElement(): ElementModel? {
-        return intent.getSerializableExtra(bundle_element) as ElementModel?
-
-    }
-
-    */
-
-  /*  private fun setNewElement() {
-        val value = getNewElement()
-        value?.let {
-            for (i in 0 until elementList.size) {
-                if (elementList[i].id ==value.id) {
-                    elementList[i].text = value.text
-                }
-                println(elementList[i].text)
+                })
             }
         }
     }
-
-   */
-
-
-    private fun setNewElement(resultElementModel: ElementModel) {
-        resultElementModel?.let { elementModel ->
-            val matchedElement = elementList.find {
-                it.id == elementModel.id
-            }
-            if (matchedElement != null) {
-                matchedElement.text = elementModel.text
-            }
-            println(elementList)
-        }
-    }
-
 
     @SuppressLint("NotifyDataSetChanged")
     private fun launcher() {
         activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
-                setNewElement(result.data?.getSerializableExtra(bundle_element) as ElementModel)
-                binding.recyclerView.adapter?.notifyDataSetChanged()
+                viewModel.setNewElement(result.data?.getSerializableExtra(bundle_element) as ElementModel)
+                observeLiveData(binding.recyclerView.adapter as RecyclerAdapter)
+
             }
         }
   }
@@ -149,4 +101,15 @@ class MainActivity : AppCompatActivity() {
 
     }
     //umut
+
+    private fun initializeVM(){
+        viewModel.createDummyData()
+    }
+
+    private fun observeLiveData(recyclerAdapter: RecyclerAdapter){
+        viewModel.elements.observe(this, Observer {
+                recyclerAdapter.submitList(it)
+                binding.recyclerView.adapter = recyclerAdapter
+        })
+    }
 }
