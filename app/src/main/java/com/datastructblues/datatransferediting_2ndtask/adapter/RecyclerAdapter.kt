@@ -9,9 +9,10 @@ import com.datastructblues.datatransferediting_2ndtask.databinding.RecyclerRowBi
 import com.datastructblues.datatransferediting_2ndtask.model.ElementModel
 
 
-class RecyclerAdapter(private val elementList: ArrayList<ElementModel>): RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
+class RecyclerAdapter(): RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
     var onItemClick: ((ElementModel) -> Unit)? = null
     private val diffCallback = object : DiffUtil.ItemCallback<ElementModel>(){
+
         override fun areItemsTheSame(oldItem: ElementModel, newItem: ElementModel): Boolean {
             return oldItem.id == newItem.id
         }
@@ -21,9 +22,26 @@ class RecyclerAdapter(private val elementList: ArrayList<ElementModel>): Recycle
         }
 
     }
-        fun submitList(elements:ArrayList<ElementModel>){
-        differ.submitList(elements)
-        }
+        //her seferinde copy bir object ile amac dısı kullanmıs olmuyor muyum? hep degistiği için hep update olacak?
+     fun submitList(list: ArrayList<ElementModel>?) {
+        val listCopy =
+            mutableListOf<ElementModel>().apply {
+                list?.map {
+                    add(ElementModel(it.id,it.text))
+                }
+            }
+         differ.submitList(listCopy)
+         }
+
+            //this won't work its not mutable?
+
+    /*      fun submitList(list:ArrayList<ElementModel>){
+                differ.submitList(list)
+            }
+
+     */
+
+
 
     private val differ = AsyncListDiffer<ElementModel>(this, diffCallback)
 
@@ -32,7 +50,7 @@ class RecyclerAdapter(private val elementList: ArrayList<ElementModel>): Recycle
         RecyclerView.ViewHolder(binding.root) {
         init {
             binding.textView.setOnClickListener {
-                onItemClick?.invoke(elementList[adapterPosition])
+                onItemClick?.invoke(differ.currentList[adapterPosition])
             }
         }
     }
@@ -43,7 +61,7 @@ class RecyclerAdapter(private val elementList: ArrayList<ElementModel>): Recycle
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.binding.textView.text = elementList[position].text
+        holder.binding.textView.text = differ.currentList[position].text
         /*     holder.binding.textView.setOnClickListener {
            // asla applicationcontext uzerınden erısılmemeli cunku cok genel bir context bu.
           //  val intent = Intent(holder.itemView.context.applicationContext,SecondActivity::class.java)

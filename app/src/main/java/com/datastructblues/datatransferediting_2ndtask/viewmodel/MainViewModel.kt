@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.datastructblues.datatransferediting_2ndtask.model.ElementModel
 
 class MainViewModel : ViewModel() {
-         var elements =MutableLiveData<ArrayList<ElementModel>>()
+         val elements =MutableLiveData<ArrayList<ElementModel>>()
 
          fun createDummyData() {
                 val element0 = ElementModel(1, "umut1")

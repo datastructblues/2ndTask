@@ -10,6 +10,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.datastructblues.datatransferediting_2ndtask.adapter.RecyclerAdapter
@@ -20,12 +21,9 @@ import kotlin.math.roundToInt
 
 
 /*   OUTPUT
-  -Main Activity'i devamlı finishlememeyi ogrendim.
-  -Bundle var kullanmayı ogrendim.
-  -Resultcontractlar ile diger activitylerin sonucunu bekleyebildigimi ogrendim.
-  -find gibi list func kullanmayı ogrendım
-  -recyclerview logicini activityden yonetmeyi ogrendim( henuz custom listener eklemeyi denemedim)
-  -custom layoutmanager kullanımı gordum code copypaste(stackoverflow)
+  -viewmodel kullanımı
+  -asynclistdiffer. Kavrsamsal olarak diffutil ve listadapter.
+  -livedata, mutablelivedata.
  */
 
 class MainActivity : AppCompatActivity() {
@@ -39,35 +37,41 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         initializeVM()
-        launcher()
-        recyclerOps()
+        val recyclerAdapter = RecyclerAdapter()
+        binding.recyclerView.adapter = recyclerAdapter   // sadece burada adapteri set ediyorum.
+        launcher(recyclerAdapter)
+        observeLiveData(recyclerAdapter)
+        recyclerOps(recyclerAdapter)
     }
 
-    private fun recyclerOps() {
-        binding.recyclerView.layoutManager = LinearLayoutPagerManager(this,RecyclerView.HORIZONTAL,false,2)
-        val recyclerAdapter = viewModel.elements.value?.let { RecyclerAdapter(it) }
-        binding.recyclerView.adapter = recyclerAdapter
-        recyclerAdapter?.let {
-            observeLiveData(recyclerAdapter)
-            recyclerAdapter.onItemClick = { elementModel ->
-                activityResultLauncher.launch(Intent(this, SecondActivity::class.java).apply {
-                    putExtra(bundle_element, elementModel)
-
-                })
-            }
+    private fun recyclerOps(recyclerAdapter: RecyclerAdapter){
+        binding.recyclerView.layoutManager = LinearLayoutPagerManager(this, RecyclerView.HORIZONTAL, false, 2)
+        recyclerAdapter.onItemClick = { elementModel ->
+            activityResultLauncher.launch(Intent(this, SecondActivity::class.java).apply {
+                putExtra(bundle_element, elementModel)
+            })
         }
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    private fun launcher() {
+    private fun launcher(recyclerAdapter: RecyclerAdapter) {
         activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
                 viewModel.setNewElement(result.data?.getSerializableExtra(bundle_element) as ElementModel)
-                observeLiveData(binding.recyclerView.adapter as RecyclerAdapter)
-
+                 observeLiveData(recyclerAdapter)   // <- bunu burada kullanma demistin oncreate disinda bir de burada kullandim.
             }
         }
   }
+    private fun observeLiveData(recyclerAdapter: RecyclerAdapter){
+        //  (binding.recyclerView.adapter as RecyclerAdapter).submitList(it)
+        viewModel.elements.observe(this){ list->
+            recyclerAdapter.submitList(list)
+
+        }
+        }
+    private fun initializeVM(){
+        viewModel.createDummyData()
+    }
+
   //customLinearLayoutManager
     class LinearLayoutPagerManager(context: Context, orientation: Int, reverseLayout: Boolean, private val itemsPerPage: Int) : LinearLayoutManager(context,orientation,reverseLayout) {
 
@@ -102,14 +106,4 @@ class MainActivity : AppCompatActivity() {
     }
     //umut
 
-    private fun initializeVM(){
-        viewModel.createDummyData()
-    }
-
-    private fun observeLiveData(recyclerAdapter: RecyclerAdapter){
-        viewModel.elements.observe(this, Observer {
-                recyclerAdapter.submitList(it)
-                binding.recyclerView.adapter = recyclerAdapter
-        })
-    }
 }
