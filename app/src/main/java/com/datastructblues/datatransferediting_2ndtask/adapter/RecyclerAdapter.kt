@@ -14,16 +14,23 @@ class RecyclerAdapter(): RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
     private val diffCallback = object : DiffUtil.ItemCallback<ElementModel>(){
 
         override fun areItemsTheSame(oldItem: ElementModel, newItem: ElementModel): Boolean {
+            println("RecyclerAdapter.areItemsTheSame")
+
+            println("oldItem = [${oldItem}], newItem = [${newItem}]")
+
             return oldItem.id == newItem.id
         }
 
         override fun areContentsTheSame(oldItem: ElementModel, newItem: ElementModel): Boolean {
-              return oldItem.text == newItem.text
+            println("RecyclerAdapter.areContentsTheSame")
+            println("oldItem = [${oldItem}], newItem = [${newItem}]")
+            return oldItem.text == newItem.text
         }
 
     }
         //her seferinde copy bir object ile amac dısı kullanmıs olmuyor muyum? hep degistiği için hep update olacak?
      fun submitList(list: ArrayList<ElementModel>?) {
+            println("list = [${list}]")
         val listCopy =
             mutableListOf<ElementModel>().apply {
                 list?.map {

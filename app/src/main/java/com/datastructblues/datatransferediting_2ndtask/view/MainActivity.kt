@@ -31,20 +31,21 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
     private val bundle_element = "element"
+    private val recyclerAdapter = RecyclerAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         initializeVM()
-        val recyclerAdapter = RecyclerAdapter()
         binding.recyclerView.adapter = recyclerAdapter   // sadece burada adapteri set ediyorum.
-        launcher(recyclerAdapter)
-        observeLiveData(recyclerAdapter)
-        recyclerOps(recyclerAdapter)
+        launcher()
+        observeLiveData()
+        recyclerOps()
     }
 
-    private fun recyclerOps(recyclerAdapter: RecyclerAdapter){
+    private fun recyclerOps(){
+        println("recyclerops:$recyclerAdapter")
         binding.recyclerView.layoutManager = LinearLayoutPagerManager(this, RecyclerView.HORIZONTAL, false, 2)
         recyclerAdapter.onItemClick = { elementModel ->
             activityResultLauncher.launch(Intent(this, SecondActivity::class.java).apply {
@@ -53,21 +54,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun launcher(recyclerAdapter: RecyclerAdapter) {
+    private fun launcher() {
+        println("launcher:$recyclerAdapter")
         activityResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
                 viewModel.setNewElement(result.data?.getSerializableExtra(bundle_element) as ElementModel)
-                 observeLiveData(recyclerAdapter)   // <- bunu burada kullanma demistin oncreate disinda bir de burada kullandim.
             }
         }
   }
-    private fun observeLiveData(recyclerAdapter: RecyclerAdapter){
+    private fun observeLiveData(){
+      //   println("observe:$recyclerAdapter")
         //  (binding.recyclerView.adapter as RecyclerAdapter).submitList(it)
-        viewModel.elements.observe(this){ list->
+        viewModel.elements.observe(this, Observer { list->
             recyclerAdapter.submitList(list)
+         })
+        }
 
-        }
-        }
     private fun initializeVM(){
         viewModel.createDummyData()
     }

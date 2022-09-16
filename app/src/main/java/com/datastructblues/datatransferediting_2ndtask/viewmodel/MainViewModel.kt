@@ -42,6 +42,8 @@ class MainViewModel : ViewModel() {
                                 matchedElement.text = elementModel.text
                         }
                         println(elements.value)
+                        elements.value= elements.value
+
                 }
         }
 
